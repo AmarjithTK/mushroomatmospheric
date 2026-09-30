@@ -1,0 +1,1516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DIY Atmospheric Mushroom Sterilizer - 40L Batch Boiler System</title>
+  <style>
+    :root {
+      --bg-dark: #0f1117;
+      --panel-bg: rgba(22, 27, 34, 0.88);
+      --panel-border: rgba(255, 255, 255, 0.12);
+      --accent-blue: #38bdf8;
+      --accent-orange: #fb923c;
+      --accent-green: #4ade80;
+      --accent-red: #f87171;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    #webgl-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      outline: none;
+      z-index: 1;
+    }
+
+    /* Glassmorphism Header */
+    header {
+      position: absolute;
+      top: 16px;
+      left: 20px;
+      z-index: 10;
+      background: var(--panel-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 14px 20px;
+      max-width: 500px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+      pointer-events: auto;
+    }
+
+    header h1 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #fff;
+    }
+
+    header h1 span.badge {
+      background: #16a34a;
+      font-size: 0.68rem;
+      padding: 3px 8px;
+      border-radius: 9999px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    header p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 5px;
+      line-height: 1.35;
+    }
+
+    /* Toolbar / View Controls */
+    .toolbar {
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      z-index: 10;
+      display: flex;
+      gap: 10px;
+      background: var(--panel-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--panel-border);
+      padding: 8px;
+      border-radius: 10px;
+      pointer-events: auto;
+    }
+
+    .btn {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-main);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.3);
+      transform: translateY(-1px);
+    }
+
+    .btn.active {
+      background: #0284c7;
+      border-color: #38bdf8;
+      color: #fff;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+    }
+
+    /* Bottom Quick Presets Bar */
+    .presets-bar {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      display: flex;
+      gap: 8px;
+      background: var(--panel-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--panel-border);
+      padding: 6px 10px;
+      border-radius: 30px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+      pointer-events: auto;
+    }
+
+    .preset-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .preset-btn:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .preset-btn.active {
+      color: #fff;
+      background: #0284c7;
+    }
+
+    /* Left Sidebar: Components Explorer */
+    .sidebar-left {
+      position: absolute;
+      top: 110px;
+      left: 20px;
+      bottom: 20px;
+      width: 290px;
+      background: var(--panel-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      pointer-events: auto;
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--panel-border);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      color: #cbd5e1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .sidebar-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+    }
+
+    .component-category {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: #64748b;
+      margin: 10px 6px 6px 6px;
+    }
+
+    .part-list-item {
+      padding: 8px 10px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      margin-bottom: 3px;
+      transition: all 0.15s;
+    }
+
+    .part-list-item:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .part-list-item.selected {
+      background: rgba(2, 132, 199, 0.25);
+      border: 1px solid #38bdf8;
+      color: #fff;
+    }
+
+    .part-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* Right Inspection Detail Card */
+    .detail-card {
+      position: absolute;
+      top: 80px;
+      right: 20px;
+      width: 350px;
+      background: var(--panel-bg);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 18px;
+      z-index: 10;
+      display: none;
+      box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.6);
+      pointer-events: auto;
+      animation: fadeIn 0.25s ease-out forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .detail-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .detail-tag {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 4px;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent-blue);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+
+    .detail-close {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1.1rem;
+      line-height: 1;
+      padding: 2px 4px;
+    }
+
+    .detail-close:hover {
+      color: #fff;
+    }
+
+    .detail-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+
+    .detail-subtitle {
+      font-size: 0.78rem;
+      color: var(--accent-orange);
+      margin-bottom: 14px;
+      font-weight: 600;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 0.78rem;
+    }
+
+    .detail-row .label {
+      color: var(--text-muted);
+    }
+
+    .detail-row .val {
+      font-weight: 600;
+      text-align: right;
+      color: var(--text-main);
+    }
+
+    .detail-description {
+      font-size: 0.78rem;
+      line-height: 1.45;
+      color: #cbd5e1;
+      margin-top: 12px;
+      background: rgba(0, 0, 0, 0.25);
+      padding: 10px;
+      border-radius: 6px;
+      border-left: 3px solid var(--accent-blue);
+    }
+
+    /* 3D Floating Tooltip */
+    #tooltip {
+      position: absolute;
+      pointer-events: none;
+      z-index: 20;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #fff;
+      display: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      transform: translate(-50%, -130%);
+      white-space: nowrap;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 3px;
+    }
+
+    @media (max-width: 900px) {
+      .sidebar-left { display: none; }
+      header { max-width: 90%; }
+      .detail-card { width: calc(100% - 40px); right: 20px; top: auto; bottom: 80px; }
+    }
+  </style>
+  <!-- Three.js and OrbitControls -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+
+  <div id="tooltip"></div>
+
+  <!-- Header -->
+  <header>
+    <h1>
+      Atmospheric Sterilizer
+      <span class="badge">40L Batch Setup</span>
+    </h1>
+    <p>40L SS Dairy Canister Batch Boiler (Zero Float Valve, 100% Walk-Away) + 4-Tier Passive Safeties + 55-Gallon Chamber.</p>
+  </header>
+
+  <!-- Top Action Toolbar -->
+  <div class="toolbar">
+    <button class="btn" id="btn-xray" title="Toggle shell opacity to see inside boiler and drum">
+      <span>👁️</span> X-Ray Cutaway
+    </button>
+    <button class="btn" id="btn-exploded" title="Slide components apart for assembly inspection">
+      <span>💥</span> Exploded View
+    </button>
+    <button class="btn active" id="btn-anim" title="Toggle animated steam flow and water simmer">
+      <span>⚡</span> Simulation: ON
+    </button>
+  </div>
+
+  <!-- Left Components List -->
+  <aside class="sidebar-left">
+    <div class="sidebar-header">
+      <span>40L System Parts</span>
+      <span style="font-size: 0.7rem; color: #4ade80;">Walk-Away Design</span>
+    </div>
+    <div class="sidebar-scroll" id="part-list-container">
+      <!-- Populated dynamically via JS -->
+    </div>
+  </aside>
+
+  <!-- Right Detail Card -->
+  <div class="detail-card" id="detail-card">
+    <div class="detail-card-header">
+      <span class="detail-tag" id="dc-tag">CONFIRMED SPEC</span>
+      <button class="detail-close" id="dc-close">&times;</button>
+    </div>
+    <div class="detail-title" id="dc-title">40L Stainless Steel Canister</div>
+    <div class="detail-subtitle" id="dc-subtitle">SS304 Batch Steam Boiler</div>
+    <div class="detail-row">
+      <span class="label">Initial Fill Volume:</span>
+      <span class="val" id="dc-height">22.0 Liters (H = 260 mm)</span>
+    </div>
+    <div class="detail-row">
+      <span class="label">5-Hr Boil-Off:</span>
+      <span class="val" id="dc-material">14.0 L (Leaves 8.0 L cushion)</span>
+    </div>
+    <div class="detail-row">
+      <span class="label">Vapor Headroom:</span>
+      <span class="val" id="dc-safety">180 mm (Zero liquid carryover)</span>
+    </div>
+    <div class="detail-row">
+      <span class="label">Float Valve Status:</span>
+      <span class="val" id="dc-cost" style="color: #4ade80;">ELIMINATED</span>
+    </div>
+    <div class="detail-description" id="dc-desc">
+      Standard 40L stainless dairy canister filled once with 22 liters of cold water. Reaches vigorous boil in 50 minutes, delivers continuous atmospheric steam for 5 hours without refilling, and leaves 8 liters of water safely submerging the heating element.
+    </div>
+  </div>
+
+  <!-- Quick Camera Presets Bottom Bar -->
+  <div class="presets-bar">
+    <button class="preset-btn active" onclick="setPresetCamera('all')">Full System</button>
+    <button class="preset-btn" onclick="setPresetCamera('boiler')">40L Boiler Shell</button>
+    <button class="preset-btn" onclick="setPresetCamera('element')">2kW Heater & Safeties</button>
+    <button class="preset-btn" onclick="setPresetCamera('steamline')">Steam Line</button>
+    <button class="preset-btn" onclick="setPresetCamera('drum')">55-Gal Chamber</button>
+  </div>
+
+  <canvas id="webgl-canvas"></canvas>
+
+  <script>
+    // --- 40L BATCH SYSTEM COMPONENT DATABASE ---
+    const COMPONENTS_DATA = [
+      {
+        id: "boiler_40l",
+        name: "40L Stainless Dairy Canister",
+        category: "Batch Boiler",
+        tag: "Core Boiler",
+        subtitle: "SS304 40-Liter Milk/Dairy Vessel",
+        height: "Ø = 340 mm, H = 500 mm",
+        material: "Stainless Steel 304 (0.8–1.0 mm wall)",
+        safety: "Zero moving parts; clamp lid atmospheric seal",
+        cost: "₹2,800 – ₹3,400",
+        desc: "Batch steam generator vessel holding 22L initial water. Eliminates float valve, inlet water line, and stilling well entirely while providing 180 mm of dry steam vapor headroom.",
+        color: "#38bdf8"
+      },
+      {
+        id: "water_volume",
+        name: "22L Water Charge & Reserves",
+        category: "Batch Boiler",
+        tag: "Water Level",
+        subtitle: "Initial 22L Fill -> 8L End Reserve",
+        height: "Initial H = 260 mm -> End H = 100 mm",
+        material: "Pure/Filtered Tap Water",
+        safety: "Leaves 8.0 L cushion covering element by 25 mm at 5h",
+        cost: "₹0",
+        desc: "Over 5 hours, the 2 kW element boils away 14.0 liters at 2.8 L/hr. At cycle end, 8.0 liters remains safely covering the heater coils.",
+        color: "#0284c7"
+      },
+      {
+        id: "heating_element",
+        name: "2 kW Immersion Heating Element",
+        category: "Heating Unit",
+        tag: "Heat Source",
+        subtitle: "IndoSurgical 230V 2000W Autoclave Coil",
+        height: "H = 40 mm (Flange) / 75 mm (Coils)",
+        material: "Incoloy / Copper-Nickel Chrome Plated",
+        safety: "Submerged under 185 mm water at start, 25 mm at finish",
+        cost: "₹750 – ₹950 (In hand)",
+        desc: "Multi-loop immersion heater drawing 8.7 Amps at 230V. Reaches boiling point in ~50 minutes and provides steady 2.8 L/hr atmospheric steam.",
+        color: "#f97316"
+      },
+      {
+        id: "thermal_switch",
+        name: "KSD301 115°C Snap-Disc",
+        category: "Safety Devices",
+        tag: "Passive Safety #1",
+        subtitle: "Manual-Reset High-Limit Thermostat",
+        height: "H = 50 mm (Beside Element Flange)",
+        material: "Bimetallic Snap-Disc in Ceramic Housing",
+        safety: "Overheat dry-burn insurance if timer fails",
+        cost: "₹180",
+        desc: "Clamped flush against the outer boiler metal shell. If water runs dry and wall temperature jumps to 115°C, it pops open and permanently cuts 230V power.",
+        color: "#ef4444"
+      },
+      {
+        id: "pop_valve",
+        name: "0.5–1.0 psi Pop Relief Valve",
+        category: "Safety Devices",
+        tag: "Passive Safety #2",
+        subtitle: "Low-Pressure Safety Relief Valve",
+        height: "Mounted on Canister Lid (H = 500 mm)",
+        material: "Brass Body with Low-Tension Spring",
+        safety: "Prevents pressure build-up if steam hose is kinked",
+        cost: "₹400",
+        desc: "Guarantees zero-pressure operation. If the steam transfer hose or diffuser holes are blocked, it immediately pops open to vent vapor.",
+        color: "#fbbf24"
+      },
+      {
+        id: "vacuum_breaker",
+        name: "1/2\" Anti-Vacuum Breaker",
+        category: "Safety Devices",
+        tag: "Passive Safety #3",
+        subtitle: "Reverse Check Valve on Lid",
+        height: "Mounted on Canister Lid (H = 500 mm)",
+        material: "Brass / SS304 Reverse Check",
+        safety: "Prevents vacuum collapse of canister upon cooldown",
+        cost: "₹350",
+        desc: "When the cycle ends and steam cools down, volume collapses 1,600x. The vacuum breaker opens automatically at -0.1 psi to prevent can implosion.",
+        color: "#10b981"
+      },
+      {
+        id: "sight_glass",
+        name: "Sight Glass & Blowdown Drain",
+        category: "Monitoring",
+        tag: "Visual & Drain",
+        subtitle: "Clear Silicone Tube + 1/2\" Drain Valve",
+        height: "H = 20 mm to 300 mm",
+        material: "High-Temp Clear Tube + SS Tees & Brass Valve",
+        safety: "Shows exact water line; allows hot mineral blowdown",
+        cost: "₹600",
+        desc: "Gives instant confirmation of the 22L fill and remaining reserve. Bottom ball valve allows draining concentrated mineral scale at the end of each run.",
+        color: "#60a5fa"
+      },
+      {
+        id: "terminal_box",
+        name: "IP65 Weatherproof Terminal Box",
+        category: "Electrical",
+        tag: "Electrical Safety",
+        subtitle: "Terminal Enclosure + PG13.5 Gland",
+        height: "H = 40 mm (Outside Shell)",
+        material: "Die-Cast Aluminum / Polycarbonate",
+        safety: "Isolates 230V terminals from moisture and splashes",
+        cost: "₹250",
+        desc: "Encloses the 230V live element connections and chassis ground lug, eliminating shock hazard and steam condensation flashovers.",
+        color: "#a855f7"
+      },
+      {
+        id: "steam_hose",
+        name: "Insulated Steam Transfer Line",
+        category: "Plumbing",
+        tag: "Steam Line",
+        subtitle: "1/2\" ID Corrugated SS Flexible Bellows Hose",
+        height: "Connects Boiler (H=440) to Drum (H=60)",
+        material: "SS304 Corrugated Hose + Silicone Thermal Wrap",
+        safety: "Vibration isolation; sloped to return condensation",
+        cost: "₹700",
+        desc: "Carries atmospheric steam from the 40L boiler upper ball valve down to the 55-gallon drum. Continuous upward incline drains condensate back to boiler.",
+        color: "#e2e8f0"
+      },
+      {
+        id: "sterilizer_drum",
+        name: "55-Gallon Sterilization Drum",
+        category: "Chamber",
+        tag: "Main Chamber",
+        subtitle: "208L Steel Drum with Lever Ring Lid",
+        height: "H = 880 mm, Ø = 580 mm",
+        material: "Heavy Gauge Mild Steel / Stainless Steel",
+        safety: "Vented atmospheric 98–100°C soak",
+        cost: "₹1,500 – ₹2,200",
+        desc: "Holds 100–120 substrate bags. Atmospheric steam fills from bottom diffuser, heating bags uniformly to 98–100°C over 4–5 hours.",
+        color: "#b91c1c"
+      },
+      {
+        id: "steam_diffuser",
+        name: "Internal Steam Diffuser",
+        category: "Chamber",
+        tag: "Steam Spreader",
+        subtitle: "1\" Cross Manifold with 4 mm Steam Jets",
+        height: "H = 30 mm inside drum floor",
+        material: "1\" SS304 / Galvanized Pipe, holes angled down 45°",
+        safety: "Even 360° steam release; downward jets prevent blockage",
+        cost: "₹500",
+        desc: "Spreads steam evenly beneath the false bottom rack. Downward angled holes prevent pooling condensate from clogging steam passage.",
+        color: "#cbd5e1"
+      },
+      {
+        id: "false_bottom",
+        name: "Heavy-Duty False Floor Grate",
+        category: "Chamber",
+        tag: "Substrate Rack",
+        subtitle: "Perforated SS Grate on 100 mm Standoff Legs",
+        height: "H = 100 mm (4\" clearance above drum floor)",
+        material: "SS304 Heavy Wire Mesh / Perforated Steel",
+        safety: "Elevates bags above 5-hour condensation accumulation",
+        cost: "₹950",
+        desc: "Keeps sawdust bags high and dry above bottom condensation pool while letting rising atmospheric steam freely penetrate every bag.",
+        color: "#64748b"
+      },
+      {
+        id: "top_exhaust",
+        name: "Drum Atmospheric Vent & Dial Thermometer",
+        category: "Safety Devices",
+        tag: "Atmospheric Vent",
+        subtitle: "1\" Open Chimney Elbow + 0-120°C Stem",
+        height: "Top Center of Drum Lid",
+        material: "Brass / SS Elbow + Bi-Metal Dial Thermometer",
+        safety: "Guarantees ZERO pressure and verifies 99–100°C soak",
+        cost: "₹650",
+        desc: "Vents displaced air during initial warm-up. Steady steam plume indicates full chamber saturation; thermometer proves true 99–100°C soak temperature.",
+        color: "#10b981"
+      }
+    ];
+
+    // --- THREE.JS SCENE SETUP ---
+    const canvas = document.getElementById("webgl-canvas");
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.15;
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0c0f17);
+    scene.fog = new THREE.FogExp2(0x0c0f17, 0.00032);
+
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000);
+    camera.position.set(1350, 1150, 1550);
+
+    const controls = new THREE.OrbitControls(camera, canvas);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.maxPolarAngle = Math.PI / 2 - 0.02;
+    controls.minDistance = 200;
+    controls.maxDistance = 3500;
+    controls.target.set(120, 480, 0);
+
+    // --- LIGHTING ---
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+    scene.add(ambientLight);
+
+    const dirLight1 = new THREE.DirectionalLight(0xfff5e6, 1.4);
+    dirLight1.position.set(1200, 2200, 1200);
+    dirLight1.castShadow = true;
+    dirLight1.shadow.mapSize.width = 2048;
+    dirLight1.shadow.mapSize.height = 2048;
+    dirLight1.shadow.camera.near = 100;
+    dirLight1.shadow.camera.far = 4000;
+    dirLight1.shadow.camera.left = -1200;
+    dirLight1.shadow.camera.right = 1200;
+    dirLight1.shadow.camera.top = 1500;
+    dirLight1.shadow.camera.bottom = -500;
+    dirLight1.shadow.bias = -0.0005;
+    scene.add(dirLight1);
+
+    const blueFill = new THREE.DirectionalLight(0x38bdf8, 0.5);
+    blueFill.position.set(-1500, 800, -800);
+    scene.add(blueFill);
+
+    const floorGrid = new THREE.GridHelper(4000, 40, 0x1e293b, 0x111827);
+    floorGrid.position.y = -2;
+    scene.add(floorGrid);
+
+    // Floor plane
+    const floorGeo = new THREE.PlaneGeometry(5000, 5000);
+    const floorMat = new THREE.MeshStandardMaterial({
+      color: 0x090d16,
+      roughness: 0.85,
+      metalness: 0.1
+    });
+    const floor = new THREE.Mesh(floorGeo, floorMat);
+    floor.rotation.x = -Math.PI / 2;
+    floor.position.y = -3;
+    floor.receiveShadow = true;
+    scene.add(floor);
+
+    // --- MATERIAL PALETTE ---
+    const materials = {
+      drumPaint: new THREE.MeshStandardMaterial({
+        color: 0x8b1e22,
+        roughness: 0.45,
+        metalness: 0.35
+      }),
+      drumLid: new THREE.MeshStandardMaterial({
+        color: 0x73171a,
+        roughness: 0.4,
+        metalness: 0.4
+      }),
+      drumRing: new THREE.MeshStandardMaterial({
+        color: 0x1e293b,
+        roughness: 0.3,
+        metalness: 0.8
+      }),
+      stainlessPolished: new THREE.MeshStandardMaterial({
+        color: 0xe2e8f0,
+        roughness: 0.22,
+        metalness: 0.88
+      }),
+      stainlessBrushed: new THREE.MeshStandardMaterial({
+        color: 0xcfd8dc,
+        roughness: 0.4,
+        metalness: 0.75
+      }),
+      brassFitting: new THREE.MeshStandardMaterial({
+        color: 0xd4af37,
+        roughness: 0.3,
+        metalness: 0.8
+      }),
+      heatingElementCoil: new THREE.MeshStandardMaterial({
+        color: 0xf97316,
+        emissive: 0x7c2d12,
+        emissiveIntensity: 0.4,
+        roughness: 0.25,
+        metalness: 0.8
+      }),
+      waterBody: new THREE.MeshStandardMaterial({
+        color: 0x0284c7,
+        transparent: true,
+        opacity: 0.55,
+        roughness: 0.1,
+        metalness: 0.1
+      }),
+      waterReserve: new THREE.MeshStandardMaterial({
+        color: 0x0ea5e9,
+        transparent: true,
+        opacity: 0.7,
+        roughness: 0.1
+      }),
+      redGasket: new THREE.MeshStandardMaterial({
+        color: 0xdc2626,
+        roughness: 0.8
+      }),
+      siliconeTube: new THREE.MeshStandardMaterial({
+        color: 0x93c5fd,
+        transparent: true,
+        opacity: 0.45,
+        roughness: 0.1
+      }),
+      substrateBag: new THREE.MeshStandardMaterial({
+        color: 0xd7c49e,
+        roughness: 0.9,
+        metalness: 0.05
+      }),
+      blackPlastic: new THREE.MeshStandardMaterial({
+        color: 0x1e293b,
+        roughness: 0.6
+      }),
+      whitePlastic: new THREE.MeshStandardMaterial({
+        color: 0xf8fafc,
+        roughness: 0.3
+      }),
+      glass: new THREE.MeshPhysicalMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.3,
+        roughness: 0.05,
+        transmission: 0.9,
+        ior: 1.5
+      })
+    };
+
+    // Store references for raycasting & interaction
+    const interactiveMeshes = [];
+    const meshesById = {};
+
+    function registerMesh(mesh, partId) {
+      mesh.userData = { partId: partId };
+      interactiveMeshes.push(mesh);
+      if (!meshesById[partId]) meshesById[partId] = [];
+      meshesById[partId].push(mesh);
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+    }
+
+    // --- SYSTEM GROUPS ---
+    const systemGroup = new THREE.Group();
+    scene.add(systemGroup);
+
+    const drumGroup = new THREE.Group();
+    drumGroup.position.set(400, 0, 0); // Positioned on right
+    systemGroup.add(drumGroup);
+
+    const boilerGroup = new THREE.Group();
+    boilerGroup.position.set(-380, 0, 0); // Positioned on left
+    systemGroup.add(boilerGroup);
+
+    // ==========================================
+    // 1. DRUM ASSEMBLY (55 Gallon / 208 Liters)
+    // ==========================================
+    const DRUM_RADIUS = 285;
+    const DRUM_HEIGHT = 880;
+
+    const drumShellGeo = new THREE.CylinderGeometry(DRUM_RADIUS, DRUM_RADIUS, DRUM_HEIGHT, 48, 1, true);
+    const drumShell = new THREE.Mesh(drumShellGeo, materials.drumPaint);
+    drumShell.position.y = DRUM_HEIGHT / 2;
+    drumGroup.add(drumShell);
+    registerMesh(drumShell, "sterilizer_drum");
+
+    const drumBottomGeo = new THREE.CylinderGeometry(DRUM_RADIUS, DRUM_RADIUS, 6, 48);
+    const drumBottom = new THREE.Mesh(drumBottomGeo, materials.drumPaint);
+    drumBottom.position.y = 3;
+    drumGroup.add(drumBottom);
+    registerMesh(drumBottom, "sterilizer_drum");
+
+    // Drum Rolling Hoops
+    [-DRUM_HEIGHT/4, DRUM_HEIGHT/4].forEach(yOffset => {
+      const hoopGeo = new THREE.TorusGeometry(DRUM_RADIUS + 4, 6, 12, 48);
+      const hoop = new THREE.Mesh(hoopGeo, materials.drumPaint);
+      hoop.rotation.x = Math.PI / 2;
+      hoop.position.y = DRUM_HEIGHT / 2 + yOffset;
+      drumGroup.add(hoop);
+      registerMesh(hoop, "sterilizer_drum");
+    });
+
+    // Drum Lid Group
+    const lidGroup = new THREE.Group();
+    lidGroup.position.y = DRUM_HEIGHT;
+    drumGroup.add(lidGroup);
+
+    const drumLid = new THREE.Mesh(new THREE.CylinderGeometry(DRUM_RADIUS + 8, DRUM_RADIUS + 8, 18, 48), materials.drumLid);
+    drumLid.position.y = 9;
+    lidGroup.add(drumLid);
+    registerMesh(drumLid, "sterilizer_drum");
+
+    const clampRing = new THREE.Mesh(new THREE.TorusGeometry(DRUM_RADIUS + 10, 8, 12, 48), materials.drumRing);
+    clampRing.rotation.x = Math.PI / 2;
+    clampRing.position.y = 9;
+    lidGroup.add(clampRing);
+    registerMesh(clampRing, "sterilizer_drum");
+
+    // Top Exhaust Chimney & Dial Thermometer
+    const exhaustPipe = new THREE.Mesh(new THREE.CylinderGeometry(14, 14, 80, 16), materials.brassFitting);
+    exhaustPipe.position.set(0, 50, 0);
+    lidGroup.add(exhaustPipe);
+    registerMesh(exhaustPipe, "top_exhaust");
+
+    const elbow = new THREE.Mesh(new THREE.TorusGeometry(20, 14, 16, 16, Math.PI / 2), materials.brassFitting);
+    elbow.rotation.z = -Math.PI / 2;
+    elbow.position.set(0, 90, 0);
+    lidGroup.add(elbow);
+    registerMesh(elbow, "top_exhaust");
+
+    const thermoDial = new THREE.Mesh(new THREE.CylinderGeometry(32, 32, 10, 32), materials.whitePlastic);
+    thermoDial.rotation.x = Math.PI / 2;
+    thermoDial.position.set(80, 25, 60);
+    lidGroup.add(thermoDial);
+    registerMesh(thermoDial, "top_exhaust");
+
+    // Drum Lower Steam Entry Port & Ball Valve
+    const drumPort = new THREE.Mesh(new THREE.CylinderGeometry(18, 18, 50, 24), materials.brassFitting);
+    drumPort.rotation.z = Math.PI / 2;
+    drumPort.position.set(-DRUM_RADIUS - 25, 60, 0);
+    drumGroup.add(drumPort);
+    registerMesh(drumPort, "steam_hose");
+
+    const drumValveBody = new THREE.Mesh(new THREE.BoxGeometry(45, 45, 55), materials.brassFitting);
+    drumValveBody.position.set(-DRUM_RADIUS - 55, 60, 0);
+    drumGroup.add(drumValveBody);
+    registerMesh(drumValveBody, "steam_hose");
+
+    const lever = new THREE.Mesh(new THREE.BoxGeometry(70, 8, 14), materials.redGasket);
+    lever.position.set(-DRUM_RADIUS - 55, 88, 0);
+    drumGroup.add(lever);
+    registerMesh(lever, "steam_hose");
+
+    // Inside Drum: Steam Diffuser (1" Cross Manifold)
+    const diffuserGroup = new THREE.Group();
+    diffuserGroup.position.set(0, 40, 0);
+    drumGroup.add(diffuserGroup);
+
+    const diffMain = new THREE.Mesh(new THREE.CylinderGeometry(14, 14, DRUM_RADIUS * 1.5, 24), materials.stainlessBrushed);
+    diffMain.rotation.z = Math.PI / 2;
+    diffuserGroup.add(diffMain);
+    registerMesh(diffMain, "steam_diffuser");
+
+    const diffCross = new THREE.Mesh(new THREE.CylinderGeometry(14, 14, DRUM_RADIUS * 1.5, 24), materials.stainlessBrushed);
+    diffCross.rotation.x = Math.PI / 2;
+    diffuserGroup.add(diffCross);
+    registerMesh(diffCross, "steam_diffuser");
+
+    // False Bottom Grate (100 mm height clearance)
+    const falseFloorGroup = new THREE.Group();
+    falseFloorGroup.position.set(0, 110, 0);
+    drumGroup.add(falseFloorGroup);
+
+    const grate = new THREE.Mesh(new THREE.CylinderGeometry(DRUM_RADIUS - 15, DRUM_RADIUS - 15, 8, 36), materials.stainlessBrushed);
+    falseFloorGroup.add(grate);
+    registerMesh(grate, "false_bottom");
+
+    [ [120, 120], [-120, 120], [120, -120], [-120, -120] ].forEach(([x, z]) => {
+      const leg = new THREE.Mesh(new THREE.CylinderGeometry(10, 10, 105, 12), materials.stainlessBrushed);
+      leg.position.set(x, -52, z);
+      falseFloorGroup.add(leg);
+      registerMesh(leg, "false_bottom");
+    });
+
+    // Substrate Bags Stack
+    const bagsGroup = new THREE.Group();
+    bagsGroup.position.set(0, 125, 0);
+    drumGroup.add(bagsGroup);
+
+    const bagGeo = new THREE.BoxGeometry(110, 140, 110);
+    const bagPositions = [
+      [-80, 70, -80], [80, 70, -80], [-80, 70, 80], [80, 70, 80], [0, 70, 0],
+      [-75, 215, 0], [75, 215, 0], [0, 215, -75], [0, 215, 75],
+      [-80, 360, -80], [80, 360, -80], [-80, 360, 80], [80, 360, 80], [0, 360, 0],
+      [-75, 505, 0], [75, 505, 0], [0, 505, -75], [0, 505, 75]
+    ];
+    bagPositions.forEach(pos => {
+      const bag = new THREE.Mesh(bagGeo, materials.substrateBag);
+      bag.position.set(pos[0], pos[1], pos[2]);
+      bag.rotation.y = (Math.random() - 0.5) * 0.2;
+      bagsGroup.add(bag);
+      registerMesh(bag, "sterilizer_drum");
+    });
+
+    // Drum Support Floor Blocks
+    [ [140, -18, 140], [-140, -18, 140], [140, -18, -140], [-140, -18, -140] ].forEach(([x, y, z]) => {
+      const block = new THREE.Mesh(new THREE.BoxGeometry(80, 36, 80), materials.blackPlastic);
+      block.position.set(x, y, z);
+      drumGroup.add(block);
+    });
+
+    // ==========================================
+    // 2. 40-LITER BATCH BOILER CANISTER
+    // ==========================================
+    const BOILER_40L_RADIUS = 170; // 340 mm diameter
+    const BOILER_40L_HEIGHT = 500; // 500 mm height
+
+    // Boiler Shell
+    const boilerShellGeo = new THREE.CylinderGeometry(BOILER_40L_RADIUS, BOILER_40L_RADIUS, BOILER_40L_HEIGHT, 40, 1, true);
+    const boilerShell = new THREE.Mesh(boilerShellGeo, materials.stainlessPolished);
+    boilerShell.position.y = BOILER_40L_HEIGHT / 2;
+    boilerGroup.add(boilerShell);
+    registerMesh(boilerShell, "boiler_40l");
+
+    // Boiler Base Plate
+    const boilerBottom = new THREE.Mesh(new THREE.CylinderGeometry(BOILER_40L_RADIUS, BOILER_40L_RADIUS, 6, 40), materials.stainlessPolished);
+    boilerBottom.position.y = 3;
+    boilerGroup.add(boilerBottom);
+    registerMesh(boilerBottom, "boiler_40l");
+
+    // Boiler Top Lid Group
+    const boilerLidGroup = new THREE.Group();
+    boilerLidGroup.position.y = BOILER_40L_HEIGHT;
+    boilerGroup.add(boilerLidGroup);
+
+    const bLid = new THREE.Mesh(new THREE.CylinderGeometry(BOILER_40L_RADIUS + 5, BOILER_40L_RADIUS + 5, 16, 40), materials.stainlessPolished);
+    bLid.position.y = 8;
+    boilerLidGroup.add(bLid);
+    registerMesh(bLid, "boiler_40l");
+
+    const bHandle = new THREE.Mesh(new THREE.TorusGeometry(55, 7, 12, 24, Math.PI), materials.stainlessPolished);
+    bHandle.rotation.x = Math.PI;
+    bHandle.position.set(0, 16, 0);
+    boilerLidGroup.add(bHandle);
+    registerMesh(bHandle, "boiler_40l");
+
+    // Canister Clamp Latches (4 clasps)
+    for (let i = 0; i < 4; i++) {
+      const angle = (i * Math.PI) / 2 + Math.PI / 4;
+      const clasp = new THREE.Mesh(new THREE.BoxGeometry(12, 34, 18), materials.stainlessBrushed);
+      clasp.position.set(
+        Math.cos(angle) * (BOILER_40L_RADIUS + 7),
+        BOILER_40L_HEIGHT - 18,
+        Math.sin(angle) * (BOILER_40L_RADIUS + 7)
+      );
+      clasp.rotation.y = -angle;
+      boilerGroup.add(clasp);
+      registerMesh(clasp, "boiler_40l");
+    }
+
+    // Safety Pop Relief Valve on Lid (Anti-burst)
+    const popValveGroup = new THREE.Group();
+    popValveGroup.position.set(-60, 20, -50);
+    boilerLidGroup.add(popValveGroup);
+
+    const popBody = new THREE.Mesh(new THREE.CylinderGeometry(14, 14, 45, 16), materials.brassFitting);
+    popValveGroup.add(popBody);
+    registerMesh(popBody, "pop_valve");
+
+    const popCap = new THREE.Mesh(new THREE.CylinderGeometry(10, 10, 16, 16), materials.redGasket);
+    popCap.position.y = 30;
+    popValveGroup.add(popCap);
+    registerMesh(popCap, "pop_valve");
+
+    // Vacuum Breaker Valve on Lid (Anti-implosion)
+    const vacValveGroup = new THREE.Group();
+    vacValveGroup.position.set(60, 20, -50);
+    boilerLidGroup.add(vacValveGroup);
+
+    const vacBody = new THREE.Mesh(new THREE.CylinderGeometry(12, 12, 40, 16), materials.brassFitting);
+    vacValveGroup.add(vacBody);
+    registerMesh(vacBody, "vacuum_breaker");
+
+    // Initial 22L Water Charge (H = 260 mm)
+    const WATER_INITIAL_H = 260; // mm
+    const waterGeo = new THREE.CylinderGeometry(BOILER_40L_RADIUS - 3, BOILER_40L_RADIUS - 3, WATER_INITIAL_H, 36);
+    const waterMesh = new THREE.Mesh(waterGeo, materials.waterBody);
+    waterMesh.position.y = WATER_INITIAL_H / 2;
+    boilerGroup.add(waterMesh);
+    registerMesh(waterMesh, "water_volume");
+
+    // Visual Reserve Indicator Disk inside boiler (H = 100 mm = 8.0 L reserve)
+    const reserveGeo = new THREE.CylinderGeometry(BOILER_40L_RADIUS - 4, BOILER_40L_RADIUS - 4, 100, 36);
+    const reserveMesh = new THREE.Mesh(reserveGeo, materials.waterReserve);
+    reserveMesh.position.y = 50;
+    boilerGroup.add(reserveMesh);
+    registerMesh(reserveMesh, "water_volume");
+
+    // ==========================================
+    // 3. 2 kW HEATING ELEMENT & THERMAL SAFETIES
+    // ==========================================
+    const ELEMENT_H = 40; // mm
+
+    const elemFlange = new THREE.Mesh(new THREE.CylinderGeometry(34, 34, 12, 24), materials.brassFitting);
+    elemFlange.rotation.z = Math.PI / 2;
+    elemFlange.position.set(-BOILER_40L_RADIUS - 6, ELEMENT_H, 0);
+    boilerGroup.add(elemFlange);
+    registerMesh(elemFlange, "heating_element");
+
+    const elemGasket = new THREE.Mesh(new THREE.CylinderGeometry(36, 36, 4, 24), materials.redGasket);
+    elemGasket.rotation.z = Math.PI / 2;
+    elemGasket.position.set(-BOILER_40L_RADIUS - 1, ELEMENT_H, 0);
+    boilerGroup.add(elemGasket);
+    registerMesh(elemGasket, "heating_element");
+
+    // Internal Multi-Loop Heating Coils
+    const elementGroup = new THREE.Group();
+    elementGroup.position.set(-BOILER_40L_RADIUS + 15, ELEMENT_H, 0);
+    boilerGroup.add(elementGroup);
+
+    [-30, 30].forEach(zOffset => {
+      const leg = new THREE.Mesh(new THREE.CylinderGeometry(7, 7, 210, 16), materials.heatingElementCoil);
+      leg.rotation.z = Math.PI / 2;
+      leg.position.set(105, 0, zOffset);
+      elementGroup.add(leg);
+      registerMesh(leg, "heating_element");
+
+      const loopTurn = new THREE.Mesh(new THREE.TorusGeometry(20, 7, 12, 24, Math.PI), materials.heatingElementCoil);
+      loopTurn.rotation.x = Math.PI / 2;
+      loopTurn.position.set(210, 0, zOffset);
+      elementGroup.add(loopTurn);
+      registerMesh(loopTurn, "heating_element");
+    });
+
+    // IP65 Weatherproof Terminal Enclosure (Outside canister)
+    const terminalBox = new THREE.Mesh(new THREE.BoxGeometry(70, 90, 90), materials.blackPlastic);
+    terminalBox.position.set(-BOILER_40L_RADIUS - 50, ELEMENT_H + 5, 0);
+    boilerGroup.add(terminalBox);
+    registerMesh(terminalBox, "terminal_box");
+
+    const gland = new THREE.Mesh(new THREE.CylinderGeometry(9, 9, 22, 16), materials.brassFitting);
+    gland.position.set(-BOILER_40L_RADIUS - 50, ELEMENT_H - 48, 0);
+    boilerGroup.add(gland);
+    registerMesh(gland, "terminal_box");
+
+    // KSD301 115°C Manual Reset Thermal Snap-Disc
+    const ksdBody = new THREE.Mesh(new THREE.CylinderGeometry(14, 14, 8, 16), materials.redGasket);
+    ksdBody.rotation.z = Math.PI / 2;
+    ksdBody.position.set(-BOILER_40L_RADIUS - 4, ELEMENT_H + 40, 25);
+    boilerGroup.add(ksdBody);
+    registerMesh(ksdBody, "thermal_switch");
+
+    const ksdResetBtn = new THREE.Mesh(new THREE.CylinderGeometry(5, 5, 6, 12), materials.redGasket);
+    ksdResetBtn.rotation.z = Math.PI / 2;
+    ksdResetBtn.position.set(-BOILER_40L_RADIUS - 9, ELEMENT_H + 40, 25);
+    boilerGroup.add(ksdResetBtn);
+    registerMesh(ksdResetBtn, "thermal_switch");
+
+    // ==========================================
+    // 4. SIGHT GLASS & DRAIN (H = 20 to 300 mm)
+    // ==========================================
+    const sightGroup = new THREE.Group();
+    sightGroup.position.set(BOILER_40L_RADIUS + 8, 0, -40);
+    boilerGroup.add(sightGroup);
+
+    const sElbowBot = new THREE.Mesh(new THREE.BoxGeometry(24, 24, 24), materials.brassFitting);
+    sElbowBot.position.set(0, 25, 0);
+    sightGroup.add(sElbowBot);
+    registerMesh(sElbowBot, "sight_glass");
+
+    const sElbowTop = new THREE.Mesh(new THREE.BoxGeometry(24, 24, 24), materials.brassFitting);
+    sElbowTop.position.set(0, 300, 0);
+    sightGroup.add(sElbowTop);
+    registerMesh(sElbowTop, "sight_glass");
+
+    const sTube = new THREE.Mesh(new THREE.CylinderGeometry(7, 7, 275, 16), materials.glass);
+    sTube.position.set(0, 162.5, 0);
+    sightGroup.add(sTube);
+    registerMesh(sTube, "sight_glass");
+
+    const sWater = new THREE.Mesh(new THREE.CylinderGeometry(5.5, 5.5, WATER_INITIAL_H - 25, 16), materials.waterBody);
+    sWater.position.set(0, 25 + (WATER_INITIAL_H - 25) / 2, 0);
+    sightGroup.add(sWater);
+    registerMesh(sWater, "sight_glass");
+
+    const drainTap = new THREE.Mesh(new THREE.CylinderGeometry(8, 8, 28, 16), materials.brassFitting);
+    drainTap.rotation.x = Math.PI / 2;
+    drainTap.position.set(18, 25, 0);
+    sightGroup.add(drainTap);
+    registerMesh(drainTap, "sight_glass");
+
+    // ==========================================
+    // 5. STEAM OUTLET & CORRUGATED HOSE
+    // ==========================================
+    const STEAM_OUTLET_H = 440; // mm
+
+    const bSteamNipple = new THREE.Mesh(new THREE.CylinderGeometry(14, 14, 40, 16), materials.stainlessPolished);
+    bSteamNipple.rotation.z = Math.PI / 2;
+    bSteamNipple.position.set(BOILER_40L_RADIUS + 18, STEAM_OUTLET_H, 0);
+    boilerGroup.add(bSteamNipple);
+    registerMesh(bSteamNipple, "steam_hose");
+
+    const bSteamValve = new THREE.Mesh(new THREE.BoxGeometry(42, 42, 48), materials.brassFitting);
+    bSteamValve.position.set(BOILER_40L_RADIUS + 46, STEAM_OUTLET_H, 0);
+    boilerGroup.add(bSteamValve);
+    registerMesh(bSteamValve, "steam_hose");
+
+    const bSteamLever = new THREE.Mesh(new THREE.BoxGeometry(60, 7, 14), materials.redGasket);
+    bSteamLever.position.set(BOILER_40L_RADIUS + 46, STEAM_OUTLET_H + 26, 0);
+    boilerGroup.add(bSteamLever);
+    registerMesh(bSteamLever, "steam_hose");
+
+    // Corrugated Stainless Steel Steam Transfer Hose
+    const hoseStart = new THREE.Vector3(-380 + BOILER_40L_RADIUS + 70, STEAM_OUTLET_H, 0);
+    const hoseEnd = new THREE.Vector3(400 - DRUM_RADIUS - 65, 60, 0);
+
+    const steamHoseCurve = new THREE.CatmullRomCurve3([
+      hoseStart,
+      new THREE.Vector3(-100, STEAM_OUTLET_H + 30, 120),
+      new THREE.Vector3(50, 240, 140),
+      new THREE.Vector3(140, 120, 60),
+      hoseEnd
+    ]);
+    const steamHose = new THREE.Mesh(new THREE.TubeGeometry(steamHoseCurve, 64, 15, 16, false), materials.stainlessBrushed);
+    systemGroup.add(steamHose);
+    registerMesh(steamHose, "steam_hose");
+
+    // ==========================================
+    // 6. ANIMATED STEAM PARTICLES & BUBBLES
+    // ==========================================
+    const BUBBLE_COUNT = 70;
+    const bubbleGeo = new THREE.SphereGeometry(3.5, 8, 8);
+    const bubbleMat = new THREE.MeshBasicMaterial({ color: 0xbae6fd, transparent: true, opacity: 0.65 });
+    const bubbleInstanced = new THREE.InstancedMesh(bubbleGeo, bubbleMat, BUBBLE_COUNT);
+    const dummy = new THREE.Object3D();
+    const bubbleVelocities = [];
+
+    for (let i = 0; i < BUBBLE_COUNT; i++) {
+      const r = Math.random() * (BOILER_40L_RADIUS - 30);
+      const theta = Math.random() * Math.PI * 2;
+      dummy.position.set(
+        Math.cos(theta) * r,
+        ELEMENT_H + Math.random() * (WATER_INITIAL_H - ELEMENT_H),
+        Math.sin(theta) * r
+      );
+      dummy.scale.setScalar(0.5 + Math.random() * 0.9);
+      dummy.updateMatrix();
+      bubbleInstanced.setMatrixAt(i, dummy.matrix);
+      bubbleVelocities.push({
+        x: (Math.random() - 0.5) * 0.3,
+        y: 0.8 + Math.random() * 1.5,
+        z: (Math.random() - 0.5) * 0.3,
+        baseY: ELEMENT_H,
+        maxY: WATER_INITIAL_H
+      });
+    }
+    boilerGroup.add(bubbleInstanced);
+
+    // Steam Flow Particles
+    const STEAM_PARTICLE_COUNT = 120;
+    const steamPGeo = new THREE.SphereGeometry(8, 8, 8);
+    const steamPMat = new THREE.MeshStandardMaterial({
+      color: 0xf8fafc,
+      transparent: true,
+      opacity: 0.35,
+      roughness: 1.0,
+      metalness: 0
+    });
+    const steamInstanced = new THREE.InstancedMesh(steamPGeo, steamPMat, STEAM_PARTICLE_COUNT);
+    const steamParticles = [];
+
+    for (let i = 0; i < STEAM_PARTICLE_COUNT; i++) {
+      steamParticles.push({
+        progress: Math.random(),
+        speed: 0.003 + Math.random() * 0.004,
+        offset: new THREE.Vector3(
+          (Math.random() - 0.5) * 12,
+          (Math.random() - 0.5) * 12,
+          (Math.random() - 0.5) * 12
+        ),
+        phase: Math.random() > 0.5 ? "hose" : "drum"
+      });
+    }
+    systemGroup.add(steamInstanced);
+
+    // ==========================================
+    // 7. UI & INTERACTIVITY LOGIC
+    // ==========================================
+    const partListContainer = document.getElementById("part-list-container");
+    const categories = {};
+
+    COMPONENTS_DATA.forEach(part => {
+      if (!categories[part.category]) categories[part.category] = [];
+      categories[part.category].push(part);
+    });
+
+    for (const [catName, parts] of Object.entries(categories)) {
+      const catHeader = document.createElement("div");
+      catHeader.className = "component-category";
+      catHeader.textContent = catName;
+      partListContainer.appendChild(catHeader);
+
+      parts.forEach(part => {
+        const item = document.createElement("div");
+        item.className = "part-list-item";
+        item.id = `item-${part.id}`;
+        item.innerHTML = `
+          <div class="part-dot" style="background: ${part.color}"></div>
+          <span>${part.name}</span>
+        `;
+        item.onclick = () => selectPart(part.id);
+        partListContainer.appendChild(item);
+      });
+    }
+
+    const detailCard = document.getElementById("detail-card");
+    const dcTag = document.getElementById("dc-tag");
+    const dcTitle = document.getElementById("dc-title");
+    const dcSubtitle = document.getElementById("dc-subtitle");
+    const dcHeight = document.getElementById("dc-height");
+    const dcMaterial = document.getElementById("dc-material");
+    const dcSafety = document.getElementById("dc-safety");
+    const dcCost = document.getElementById("dc-cost");
+    const dcDesc = document.getElementById("dc-desc");
+    const dcClose = document.getElementById("dc-close");
+
+    dcClose.onclick = () => {
+      detailCard.style.display = "none";
+      clearHighlights();
+    };
+
+    let selectedPartId = null;
+
+    function selectPart(partId) {
+      selectedPartId = partId;
+      const data = COMPONENTS_DATA.find(p => p.id === partId);
+      if (!data) return;
+
+      document.querySelectorAll(".part-list-item").forEach(el => el.classList.remove("selected"));
+      const listItem = document.getElementById(`item-${partId}`);
+      if (listItem) {
+        listItem.classList.add("selected");
+        listItem.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+
+      dcTag.textContent = data.tag;
+      dcTitle.textContent = data.name;
+      dcSubtitle.textContent = data.subtitle;
+      dcHeight.textContent = data.height;
+      dcMaterial.textContent = data.material;
+      dcSafety.textContent = data.safety;
+      dcCost.textContent = data.cost;
+      dcDesc.textContent = data.desc;
+      detailCard.style.display = "block";
+
+      highlightPartMeshes(partId);
+      focusCameraOnPart(partId);
+    }
+
+    let originalMaterials = new Map();
+
+    function highlightPartMeshes(partId) {
+      clearHighlights();
+      const meshes = meshesById[partId] || [];
+      meshes.forEach(mesh => {
+        if (!originalMaterials.has(mesh)) {
+          originalMaterials.set(mesh, mesh.material);
+        }
+        const hlMat = mesh.material.clone();
+        hlMat.emissive = new THREE.Color(0x0284c7);
+        hlMat.emissiveIntensity = 0.6;
+        mesh.material = hlMat;
+      });
+    }
+
+    function clearHighlights() {
+      originalMaterials.forEach((origMat, mesh) => {
+        mesh.material.dispose();
+        mesh.material = origMat;
+      });
+      originalMaterials.clear();
+    }
+
+    function focusCameraOnPart(partId) {
+      const meshes = meshesById[partId] || [];
+      if (meshes.length === 0) return;
+
+      const box = new THREE.Box3();
+      meshes.forEach(m => box.expandByObject(m));
+      const center = box.getCenter(new THREE.Vector3());
+
+      controls.target.copy(center);
+    }
+
+    // --- RAYCASTING & TOOLTIP ---
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+    const tooltip = document.getElementById("tooltip");
+
+    window.addEventListener("pointermove", (event) => {
+      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObjects(interactiveMeshes, false);
+
+      if (intersects.length > 0) {
+        const topMesh = intersects[0].object;
+        const partId = topMesh.userData.partId;
+        const data = COMPONENTS_DATA.find(p => p.id === partId);
+        if (data) {
+          tooltip.style.display = "block";
+          tooltip.style.left = `${event.clientX}px`;
+          tooltip.style.top = `${event.clientY}px`;
+          tooltip.textContent = `${data.name} (${data.tag})`;
+          canvas.style.cursor = "pointer";
+          return;
+        }
+      }
+      tooltip.style.display = "none";
+      canvas.style.cursor = "default";
+    });
+
+    window.addEventListener("click", (event) => {
+      if (event.target !== canvas) return;
+
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObjects(interactiveMeshes, false);
+
+      if (intersects.length > 0) {
+        const topMesh = intersects[0].object;
+        const partId = topMesh.userData.partId;
+        if (partId) selectPart(partId);
+      }
+    });
+
+    // --- VIEW MODES & TOGGLES ---
+    let isXRay = false;
+    let isExploded = false;
+    let isSimulating = true;
+
+    const btnXRay = document.getElementById("btn-xray");
+    const btnExploded = document.getElementById("btn-exploded");
+    const btnAnim = document.getElementById("btn-anim");
+
+    btnXRay.onclick = () => {
+      isXRay = !isXRay;
+      btnXRay.classList.toggle("active", isXRay);
+      drumShell.material.transparent = isXRay;
+      drumShell.material.opacity = isXRay ? 0.28 : 1.0;
+      boilerShell.material.transparent = isXRay;
+      boilerShell.material.opacity = isXRay ? 0.32 : 1.0;
+    };
+
+    btnExploded.onclick = () => {
+      isExploded = !isExploded;
+      btnExploded.classList.toggle("active", isExploded);
+    };
+
+    btnAnim.onclick = () => {
+      isSimulating = !isSimulating;
+      btnAnim.classList.toggle("active", isSimulating);
+      btnAnim.innerHTML = isSimulating ? "<span>⚡</span> Simulation: ON" : "<span>⏸️</span> Simulation: OFF";
+    };
+
+    function setPresetCamera(preset) {
+      document.querySelectorAll(".preset-btn").forEach(b => b.classList.remove("active"));
+      event.target.classList.add("active");
+
+      switch(preset) {
+        case "all":
+          camera.position.set(1250, 1050, 1450);
+          controls.target.set(50, 440, 0);
+          break;
+        case "boiler":
+          camera.position.set(-720, 420, 560);
+          controls.target.set(-380, 250, 0);
+          selectPart("boiler_40l");
+          break;
+        case "element":
+          camera.position.set(-820, 180, 280);
+          controls.target.set(-480, 80, 0);
+          selectPart("heating_element");
+          break;
+        case "steamline":
+          camera.position.set(20, 580, 800);
+          controls.target.set(0, 270, 0);
+          selectPart("steam_hose");
+          break;
+        case "drum":
+          camera.position.set(880, 820, 980);
+          controls.target.set(400, 460, 0);
+          selectPart("sterilizer_drum");
+          break;
+      }
+    }
+
+    // --- ANIMATION LOOP ---
+    const clock = new THREE.Clock();
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const delta = clock.getDelta();
+      const elapsed = clock.getElapsedTime();
+
+      controls.update();
+
+      // Exploded View Interpolation
+      const targetLidY = isExploded ? DRUM_HEIGHT + 220 : DRUM_HEIGHT;
+      lidGroup.position.y += (targetLidY - lidGroup.position.y) * 0.08;
+
+      const targetBoilerLidY = isExploded ? BOILER_40L_HEIGHT + 180 : BOILER_40L_HEIGHT;
+      boilerLidGroup.position.y += (targetBoilerLidY - boilerLidGroup.position.y) * 0.08;
+
+      const targetTerminalX = isExploded ? -BOILER_40L_RADIUS - 130 : -BOILER_40L_RADIUS - 50;
+      terminalBox.position.x += (targetTerminalX - terminalBox.position.x) * 0.08;
+
+      // Simulation Effects
+      if (isSimulating) {
+        waterMesh.scale.y = 1.0 + Math.sin(elapsed * 6) * 0.012;
+
+        for (let i = 0; i < BUBBLE_COUNT; i++) {
+          const v = bubbleVelocities[i];
+          bubbleInstanced.getMatrixAt(i, dummy.matrix);
+          dummy.matrix.decompose(dummy.position, dummy.quaternion, dummy.scale);
+
+          dummy.position.y += v.y;
+          dummy.position.x += v.x;
+          dummy.position.z += v.z;
+
+          if (dummy.position.y >= v.maxY) {
+            dummy.position.y = v.baseY;
+          }
+          dummy.updateMatrix();
+          bubbleInstanced.setMatrixAt(i, dummy.matrix);
+        }
+        bubbleInstanced.instanceMatrix.needsUpdate = true;
+
+        for (let i = 0; i < STEAM_PARTICLE_COUNT; i++) {
+          const sp = steamParticles[i];
+          sp.progress += sp.speed;
+          if (sp.progress > 1.0) sp.progress = 0;
+
+          if (sp.phase === "hose") {
+            const pt = steamHoseCurve.getPoint(sp.progress);
+            dummy.position.copy(pt).add(sp.offset);
+            dummy.scale.setScalar(0.7 + sp.progress * 0.8);
+          } else {
+            const riseH = 60 + sp.progress * (DRUM_HEIGHT - 60);
+            dummy.position.set(
+              400 + Math.sin(elapsed * 2 + i) * 60,
+              riseH,
+              Math.cos(elapsed * 2 + i) * 60
+            );
+            dummy.scale.setScalar(0.8 + sp.progress * 1.5);
+          }
+          dummy.updateMatrix();
+          steamInstanced.setMatrixAt(i, dummy.matrix);
+        }
+        steamInstanced.instanceMatrix.needsUpdate = true;
+
+        materials.heatingElementCoil.emissiveIntensity = 0.35 + Math.sin(elapsed * 3) * 0.15;
+      }
+
+      renderer.render(scene, camera);
+    }
+
+    window.addEventListener("resize", () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    animate();
+    selectPart("boiler_40l");
+  </script>
+</body>
+</html>

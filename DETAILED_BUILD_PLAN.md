@@ -205,17 +205,16 @@ Boiling water inside a 20 L vessel with 2 kW power generates severe surface frot
 | **M-01** | SS Milk Canister / Boiler Vessel | 20 L Rudra / Shiner SS304 with clamp lid | 1 | ₹2,100 | Sourced locally (Dairy / steel dealer) |
 | **M-02** | 180L Drum (Sterilization Chamber) | 180 L open-top metal drum with lid and lock-ring | 1 | ₹500 | Sourced locally (Vatakara scrap/barrel market) |
 | **M-03** | Immersion Heating Element | 2 kW 230V autoclave screw-plug heater (1.25" or 1.5" BSP) | 1 | ₹900 – ₹1,200 | IndoSurgical / Amazon |
-| **M-04** | **Miniature All-SS Float Valve** | **1/2" BSP SS304 body, arm, and hollow ball, PTFE/silicone seal** | **1** | **₹650 – ₹900** | Mallinath Metals (Nagdevi, Mumbai) / Calicut |
-| **M-05** | **Sight Glass cum Boiler Drain** | **2× 1/2" SS Tees + 1/2" SS Ball Valve + 2× Barbs + Clear Tube** | **1 set** | **₹650 – ₹850** | Calicut (Cherooty Rd) |
-| **M-06** | Steam Transfer Line | 1/2" all-metal corrugated SS flexible hose (1.5 m, female BSP swivel) | 1 | ₹200 – ₹350 | Geyser corrugated pipe (pure metal, no PVC core) |
-| **M-07** | **Dual Commercial Cooker Vents** | **2× Commercial 6 mm bore cooker vent spindles + brass weights** | **2 sets** | **₹180 – ₹250** | Local utensil / stove repair shop (Vatakara) |
-| **M-08** | Cooker Fusible Safety Plug | Threaded alloy backup blowout plug | 1 | ₹30 – ₹50 | Local stove repair shop |
-| **M-09** | Vacuum Breaker Valve | 1/2" solar water heater vacuum valve or inverted SS/brass NRV (PTFE) | 1 | ₹180 – ₹350 | Solar equipment dealer / Mallinath Metals |
-| **M-10** | **Drum Steam & Drain Ports** | **2× 1/2" SS Bulkhead Connectors + 2× 1/2" SS Ball Valves** | **2 sets** | **₹900 – ₹1,200** | Calicut (Cherooty Rd) |
-| **M-11** | **Drum Internal Steam Diffuser** | 1/2" SS/Galvanized pipe (15 cm) + 1/2" Tee + 2 End Caps (drilled @ 45°) | 1 set | ₹300 – ₹450 | Local plumbing / fabrication |
+| **M-04** | **Miniature All-SS Float Valve** | **1/2" BSP SS304 body, arm, and hollow ball, PTFE/silicone seal** | **1** | **₹550 – ₹750** | SJP Road (Bangalore) / Calicut |
+| **M-05** | **Steam Transfer Quick Couplers** | **1/2" SS304 Camlock Sets (2× Type F Male + 2× Type B Female)** | **2 sets** | **₹550 – ₹700** | SJP Road (Bangalore) / Calicut |
+| **M-06** | Steam Transfer Line | 1/2" all-metal corrugated SS flexible hose (1.5 m, NO rubber/PVC) | 1 | ₹200 – ₹280 | SJP Road (Bangalore) / Calicut |
+| **M-07** | **Dual Commercial Cooker Vents** | **2× Commercial 6 mm bore cooker vent spindles + brass weights** | **2 sets** | **₹140 – ₹180** | Chickpet (Bangalore) / Vatakara |
+| **M-08** | Cooker Fusible Safety Plug | Threaded alloy backup blowout plug | 1 | ₹30 – ₹50 | Stove repair shop |
+| **M-09** | Vacuum Breaker Valve | 1/2" solar water heater vacuum valve or inverted SS/brass NRV (PTFE) | 1 | ₹180 – ₹280 | SJP Road (Bangalore) / Calicut |
+| **M-10** | **Drum Steam & Drain Ports** | **2× 1/2" SS Bulkhead Connectors + 1× 1/2" SS Ball Valve (Drain)** | **1 set** | **₹650 – ₹800** | SJP Road (Bangalore) / Calicut |
+| **M-11** | **Drum Internal Steam Diffuser** | 1/2" SS/Galvanized pipe (25 cm) + 1/2" Threaded Cap (drilled @ 45°) | 1 set | ₹150 – ₹200 | Local plumbing / fabrication |
 | **M-12** | Drum False Bottom Grate | Heavy expanded metal / SS perforated sheet on 100 mm legs | 1 | ₹800 – ₹1,200 | Local metal fabrication shop |
-| **M-13** | **Waterline Y-Pattern Strainer** | **1/2" BSP SS304 or Brass Y-Strainer (80-mesh SS basket)** | **1** | **₹250 – ₹350** | **Plumbing merchant (Cherooty Rd)** |
-| **M-14** | High-Temp Sealants & Fasteners | Red RTV silicone (Anabond 666), PTFE tape, M4/M6 hardware | 1 set | ₹300 | Local auto / hardware store |
+| **M-13** | High-Temp Sealants & Fasteners | Red RTV silicone (Anabond 666), PTFE tape, M4/M6 hardware | 1 set | ₹300 | Local auto / hardware store |
 
 ### 6.2 Electrical, Automation & Safety Switchgear
 | Item # | Component Description | Specifications / Size | Qty | Est. Cost (INR) | Sourcing / Search Keyword |
